@@ -39,6 +39,7 @@ Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/pxlart) pa
 | <kbd>h j k l</kbd> | Navigation keys |
 | <kbd>d</kbd> | Draw |
 | <kbd>e</kbd> | Erase |
+| <kbd>b</kbd> | Change Brush |
 | <kbd>c</kbd> | Set FG Color |
 | <kbd>B</kbd> | Set BG Color |
 | <kbd>q</kbd> | Quit |
