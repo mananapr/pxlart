@@ -1,4 +1,4 @@
-<h3 align="center"><img src="logo.png" height="150px"></h3>
+<h3 align="center"><img src="logo.png" height="100px"></h3>
 <p align="center">A pixel art editor for the terminal written in C</p>
 
 <p align="center">
@@ -10,7 +10,7 @@
 <a href="https://github.com/mananapr/cfiles/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License" /></a>
 </p>
 
-<h3 align="center"><img src="scrot.png" width="51%"></h3>
+<h3 align="center"><img src="scrot.png" width="61%"></h3>
 
 `pxlart` is a pixel art editor written in C using the ncurses library that has vim like keybindings.
 
