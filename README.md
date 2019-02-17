@@ -3,7 +3,7 @@
 
 <p align="center">
 <a href="https://github.com/mananapr/pxlart/releases/latest"><img src="https://img.shields.io/badge/release-v1.0-blue.svg" alt="Latest release" /></a>
-<a href="https://aur.archlinux.org/packages/pxlart"><img src="https://img.shields.io/badge/aur-v1.0-blue.svg" alt="Arch Linux" /></a>
+<a href="https://aur.archlinux.org/packages/pxlart"><img src="https://img.shields.io/badge/AUR-v1.0-blue.svg" alt="Arch Linux" /></a>
 </p>
 
 <p align="center">
@@ -13,22 +13,25 @@
 <h3 align="center"><img src="scrot.png" width="61%"></h3>
 
 `pxlart` is a pixel art editor written in C using the ncurses library that has vim like keybindings.
+I got the idea from a bash script called [pxltrm](https://github.com/dylanaraps/pxltrm).
 
 ## Dependencies
 - `ncursesw`
 
 ## Installation
-- clone the repo
+- Clone the repo
 
 `git clone --depth 1 https://github.com/mananapr/pxlart`
 
-- compile using `make`
+- Compile using `make`
 
 `cd pxlart && make`
 
-- install
+- Install
 
 `sudo make install`
+
+Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/pxlart) package.
 
 ## Keybindings
 | Key | Function |
