@@ -2,7 +2,7 @@
 <p align="center">A pixel art editor for the terminal written in C</p>
 
 <p align="center">
-<a href="https://github.com/mananapr/cfiles/releases/latest"><img src="https://img.shields.io/badge/release-v1.0-blue.svg" alt="Latest release" /></a>
+<a href="https://github.com/mananapr/pxlart/releases/latest"><img src="https://img.shields.io/badge/release-v1.0-blue.svg" alt="Latest release" /></a>
 <a href="https://aur.archlinux.org/packages/pxlart"><img src="https://img.shields.io/badge/aur-v1.0-blue.svg" alt="Arch Linux" /></a>
 </p>
 
