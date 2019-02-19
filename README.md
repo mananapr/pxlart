@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/mananapr/cfiles/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License" /></a>
+<a href="https://github.com/mananapr/pxlart/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License" /></a>
 </p>
 
 <h3 align="center"><img src="scrot.png" width="61%"></h3>
@@ -42,13 +42,15 @@ Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/pxlart) pa
 | <kbd>b</kbd> | Change Brush |
 | <kbd>c</kbd> | Set FG Color |
 | <kbd>B</kbd> | Set BG Color |
+| <kbd>s</kbd> | Save |
+| <kbd>o</kbd> | Load |
 | <kbd>q</kbd> | Quit |
 
 ## A note about colors
 `pxlart` uses shell color numbers (0-255) for color input. You can use a script like [this](https://gist.github.com/MicahElliott/719710) to see what number corresponds to what color.
 
 ## TODO
-- [ ] Add ability to save and load
+- [x] Add ability to save and load
 - [ ] Add ability to export to image formats
 - [x] Make PKGBUILD for AUR
 - [ ] Write a manpage
