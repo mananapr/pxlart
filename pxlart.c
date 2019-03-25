@@ -210,6 +210,7 @@ int main()
                 break;
 
             // Draw the brush character
+            case ' ':
             case 'd':
                 getyx(draw_win, y, x);
                 wmove(draw_win, y, x);
