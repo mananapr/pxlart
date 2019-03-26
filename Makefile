@@ -1,6 +1,19 @@
 CC = gcc
 CFLAGS = -I. -Wall
-LIBS =  -lncursesw
+
+OS = $(shell uname -s)
+
+ifeq ($(OS), Darwin)
+# OSX Flags (using Homebrew ncurses)
+LIBS += -L/usr/local/opt/ncurses/lib
+CFLAGS += -I/usr/local/opt/ncurses/include
+LIBS += -lncurses
+endif
+
+ifeq ($(OS), Linux)
+LIBS += -lncursesw
+endif
+
 SRCS = pxlart.c
 OBJS = $(SRCS: .c = .o)
 PROG = pxlart
