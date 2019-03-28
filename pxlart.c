@@ -56,6 +56,7 @@ pxl_cell *cells = NULL;
 
 void write_cell(int x, int y, char c);
 void erase_cell(int x, int y);
+void store_cell(int x, int y, char c, int w, int h, int fg, int bg);
 
 //////////////////////
 // HELPER FUNCTIONS //
@@ -315,9 +316,15 @@ void load(void)
     char *filename = NULL;
     // Stores Filename of colors file
     char *colorsfile = NULL;
+    // Stores Filename of data file
+    char *datafile = NULL;
     // Stores amount to allocate
     int allocSize;
     FILE *f;
+    int w, h;
+    int x, y;
+    int the_fg, the_bg;
+    int c;
 
     werase(status_win);
     echo();
@@ -331,6 +338,8 @@ void load(void)
     snprintf(filename,allocSize+1,"%s.save",buf);
     colorsfile = malloc(allocSize+1);
     snprintf(colorsfile,allocSize+1,"%s.cols",buf);
+    datafile = malloc(allocSize+1);
+    snprintf(datafile,allocSize+1,"%s.data",buf);
 
     // If colorsfile doesn't exists, free memory and break
     f = fopen(colorsfile,"r");
@@ -340,6 +349,7 @@ void load(void)
         free(filename);
         free(colorsfile);
         free(buf);
+        free(datafile);
         return;
     }
 
@@ -355,17 +365,45 @@ void load(void)
         init_pair(n, f, b);
         count = i++;
     }
-
+    fclose(f);
     // Restore screen layout
     scr_restore(filename);
     doupdate();
 
-    // CLose file and free memory
-    fclose(f);
+
+    f = fopen(datafile,"r");
+
+    if(f != NULL) {
+        fscanf(f, "%d %d\n", &w, &h);
+        for(y = 0; y < h; y++) {
+            for(x = 0; x < w; x++) {
+                fscanf(f, "%d %d %d\n", &the_fg, &the_bg, (int *)&c);
+                store_cell(x, y, (char)c, w, h, the_fg, the_bg);
+            }
+        }
+        fclose(f);
+    }
+    // free memory
     noecho();
     free(filename);
     free(colorsfile);
+    free(datafile);
     free(buf);
+}
+
+
+/*
+    Stores cell (using arbitrary width/height)
+*/
+void store_cell(int x, int y, char c, int w, int h, int fg, int bg)
+{
+    int pos;
+    if(x < 0 || x >= w) return;
+    if(y < 0 || y >= h) return;
+    pos = y * w + x;
+    cells[pos].c = c;
+    cells[pos].fg = fg;
+    cells[pos].bg = bg;
 }
 
 /*
@@ -373,13 +411,7 @@ void load(void)
 */
 void write_cell(int x, int y, char c)
 {
-    int pos;
-    if(x < 0 || x >= maxx) return;
-    if(y < 0 || y >= maxy) return;
-    pos = y * maxx + x;
-    cells[pos].c = c;
-    cells[pos].fg = fg;
-    cells[pos].bg = bg;
+    store_cell(x, y, c, maxx, maxy, fg, bg);
 }
 
 /*

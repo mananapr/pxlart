@@ -1,4 +1,4 @@
-CFLAGS = -I. -Wall
+CFLAGS = -I. -Wall -g
 
 OS = $(shell uname -s)
 
