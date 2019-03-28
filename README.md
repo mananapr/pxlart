@@ -49,8 +49,21 @@ Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/pxlart) pa
 ## A note about colors
 `pxlart` uses shell color numbers (0-255) for color input. You can use a script like [this](https://gist.github.com/MicahElliott/719710) to see what number corresponds to what color.
 
+## Image Export
+Saved projects can be exported to image formats using the mkppm utility
+included with pxlart.
+
+A saved project called "foo" will generate a file called "foo.data", which
+can be passed into the mkppm utility to create "foo.ppm".
+
+`./mkppm foo.data foo.ppm`
+
+The PPM file can then be converted to a PNG file using imagemagick:
+
+`convert foo.ppm foo.png`
+
 ## TODO
 - [x] Add ability to save and load
-- [ ] Add ability to export to image formats
+- [x] Add ability to export to image formats
 - [x] Make PKGBUILD for AUR
 - [ ] Write a manpage

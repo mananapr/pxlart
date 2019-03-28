@@ -23,6 +23,7 @@
 
 // Stores the brush
 char *brush = NULL;
+int brushsize = 0;
 
 // Stores the current coordinates for the cursor
 int x, y;
@@ -45,6 +46,17 @@ WINDOW *draw_win;
 // Window for status line
 WINDOW *status_win;
 
+typedef struct {
+    int fg;
+    int bg;
+    char c;
+} pxl_cell;
+
+pxl_cell *cells = NULL;
+
+void write_cell(int x, int y, char c);
+void erase_cell(int x, int y);
+void store_cell(int x, int y, char c, int w, int h, int fg, int bg);
 
 //////////////////////
 // HELPER FUNCTIONS //
@@ -64,7 +76,7 @@ WINDOW *create_newwin(int height, int width, int starty, int startx)
 /*
    Creates current_win, preview_win and status_win
 */
-void init_windows()
+void init_windows(void)
 {
     getmaxyx(stdscr, maxy, maxx);
     draw_win = create_newwin(maxy-2, maxx, 0, 0);
@@ -72,11 +84,10 @@ void init_windows()
     keypad(draw_win, TRUE);
 }
 
-
 /*
     Initializes ncurses
 */
-void init_curses()
+void init_curses(void)
 {
     initscr();
     noecho();
@@ -91,7 +102,7 @@ void init_curses()
 /*
     Prints status line
 */
-void printStatus()
+void printStatus(void)
 {
     werase(status_win);
     wprintw(status_win, "(b)rush: ");
@@ -117,6 +128,7 @@ void setBrush(char *newBrush)
     }
     free(brush);
     int allocSize = snprintf(NULL, 0, "%s", newBrush);
+    brushsize = allocSize;
     brush = malloc(allocSize+1);
     snprintf(brush, allocSize+1, "%s", newBrush);
 }
@@ -125,7 +137,7 @@ void setBrush(char *newBrush)
 /*
     Moves the cursor up
 */
-void goUp()
+void goUp(void)
 {
     getyx(draw_win, y, x);
     wmove(draw_win, y-1, x);
@@ -135,7 +147,7 @@ void goUp()
 /*
     Moves the cursor down
 */
-void goDown()
+void goDown(void)
 {
     getyx(draw_win, y, x);
     wmove(draw_win, y+1, x);
@@ -145,7 +157,7 @@ void goDown()
 /*
     Moves the cursor left
 */
-void goLeft()
+void goLeft(void)
 {
     getyx(draw_win, y, x);
     wmove(draw_win, y, x-1);
@@ -155,7 +167,7 @@ void goLeft()
 /*
     Moves the cursor right
 */
-void goRight()
+void goRight(void)
 {
     getyx(draw_win, y, x);
     wmove(draw_win, y, x+1);
@@ -163,16 +175,252 @@ void goRight()
 
 
 /*
-    Initializes the program
+    Draw
 */
-void init()
+void draw(void)
 {
-    setlocale(LC_ALL, "");
-    setBrush("█");
-    init_curses();
-    init_windows();
+    int i;
+    getyx(draw_win, y, x);
+    wmove(draw_win, y, x);
+    wattron(draw_win, COLOR_PAIR(count));
+    wprintw(draw_win, "%s", brush);
+    wattroff(draw_win, COLOR_PAIR(count));
+    wmove(draw_win, y, x+1);
+    for(i = 0; i < brushsize; i++) {
+        write_cell(x + i, y, brush[i]);
+    }
 }
 
+/*
+    Erase
+*/
+void eraser(void)
+{
+    getyx(draw_win, y, x);
+    wmove(draw_win, y, x);
+    wprintw(draw_win, "%s", " ");
+    erase_cell(x, y);
+    wmove(draw_win, y, x+1);
+}
+
+/*
+    Initializes the program
+*/
+void init(void)
+{
+    int sz;
+    int i;
+    setlocale(LC_ALL, "");
+    setBrush("#");
+    init_curses();
+    init_windows();
+    sz = maxx * maxy;
+    cells = calloc(1, sizeof(pxl_cell) * sz);
+    for(i = 0; i < sz; i++) {
+        cells[i].c = ' ';
+        cells[i].fg = 0;
+        cells[i].bg = 0;
+    }
+}
+
+/*
+    Cleanup the program
+*/
+void cleanup(void)
+{
+    endwin();
+    free(brush);
+    free(cells);
+}
+
+/*
+    Save Project
+*/
+void save(void)
+{
+    // For input (stdin & file)
+    char *buf = NULL;
+    // Stores Filename of save file
+    char *filename = NULL;
+    // Stores Filename of colors file
+    char *colorsfile = NULL;
+    // Stores Cell Data
+    char *datafile = NULL;
+    // Stores amount to allocate
+    int allocSize;
+    // Write all colors in `colorsfile`
+    FILE *f;
+    // Write data in `datafile`
+    FILE *df;
+    int sz;
+    int i;
+
+    werase(status_win);
+    echo();
+    wprintw(status_win, "Enter Name of Project: ");
+
+    // Read filename and appropriately set `filename` and `colorsfile`
+    buf = malloc(250);
+    wgetnstr(status_win, buf, 250);
+    allocSize = snprintf(NULL,0,"%s.save",buf);
+    filename = malloc(allocSize+1);
+    snprintf(filename,allocSize+1,"%s.save",buf);
+    colorsfile = malloc(allocSize+1);
+    snprintf(colorsfile,allocSize+1,"%s.cols",buf);
+    datafile = malloc(allocSize+1);
+    snprintf(datafile ,allocSize+1,"%s.data",buf);
+
+    // Save screen output in ``filename
+    scr_dump(filename);
+
+    // Write all colors in `colorsfile`
+    f = fopen(colorsfile,"w");
+    df = fopen(datafile,"w");
+    for(int i=1; i<=count; i++)
+    {
+        short int *a, *b;
+        short int x, y;
+        a = &x;
+        b = &y;
+        pair_content(i, a, b);
+        fprintf(f,"%d %hd %hd\n", i, x, y);
+    }
+
+    fprintf(df, "%d %d\n", maxx, maxy);
+    sz = maxx * maxy;
+
+    for(i = 0; i < sz; i++) {
+        fprintf(df, "%d %d %d\n",
+                cells[i].fg,
+                cells[i].bg,
+                (unsigned char)cells[i].c);
+    }
+
+    // Close file and free memory
+    fclose(f);
+    fclose(df);
+    free(filename);
+    free(colorsfile);
+    free(buf);
+    noecho();
+}
+
+/*
+    Load Project
+*/
+void load(void)
+{
+    // For input (stdin & file)
+    char *buf = NULL;
+    // Stores Filename of save file
+    char *filename = NULL;
+    // Stores Filename of colors file
+    char *colorsfile = NULL;
+    // Stores Filename of data file
+    char *datafile = NULL;
+    // Stores amount to allocate
+    int allocSize;
+    FILE *f;
+    int w, h;
+    int x, y;
+    int the_fg, the_bg;
+    int c;
+
+    werase(status_win);
+    echo();
+    wprintw(status_win, "Enter Name of Project: ");
+
+    // Take filename input and appropriately set `filename` and `colorsfile`
+    buf = malloc(250);
+    wgetnstr(status_win, buf, 250);
+    allocSize = snprintf(NULL,0,"%s.save",buf);
+    filename = malloc(allocSize+1);
+    snprintf(filename,allocSize+1,"%s.save",buf);
+    colorsfile = malloc(allocSize+1);
+    snprintf(colorsfile,allocSize+1,"%s.cols",buf);
+    datafile = malloc(allocSize+1);
+    snprintf(datafile,allocSize+1,"%s.data",buf);
+
+    // If colorsfile doesn't exists, free memory and break
+    f = fopen(colorsfile,"r");
+    if(f == NULL)
+    {
+        noecho();
+        free(filename);
+        free(colorsfile);
+        free(buf);
+        free(datafile);
+        return;
+    }
+
+    // Remove existing color pairs
+    reset_color_pairs();
+
+    // Load color pairs from `colorsfile`
+    int i=1;
+    while(fgets(buf, 250, (FILE*) f))
+    {
+        int n, f, b;
+        sscanf(buf,"%d %d %d", &n, &f, &b);
+        init_pair(n, f, b);
+        count = i++;
+    }
+    fclose(f);
+    // Restore screen layout
+    scr_restore(filename);
+    doupdate();
+
+
+    f = fopen(datafile,"r");
+
+    if(f != NULL) {
+        fscanf(f, "%d %d\n", &w, &h);
+        for(y = 0; y < h; y++) {
+            for(x = 0; x < w; x++) {
+                fscanf(f, "%d %d %d\n", &the_fg, &the_bg, (int *)&c);
+                store_cell(x, y, (char)c, w, h, the_fg, the_bg);
+            }
+        }
+        fclose(f);
+    }
+    // free memory
+    noecho();
+    free(filename);
+    free(colorsfile);
+    free(datafile);
+    free(buf);
+}
+
+
+/*
+    Stores cell (using arbitrary width/height)
+*/
+void store_cell(int x, int y, char c, int w, int h, int fg, int bg)
+{
+    int pos;
+    if(x < 0 || x >= w) return;
+    if(y < 0 || y >= h) return;
+    pos = y * w + x;
+    cells[pos].c = c;
+    cells[pos].fg = fg;
+    cells[pos].bg = bg;
+}
+
+/*
+    Write a cell
+*/
+void write_cell(int x, int y, char c)
+{
+    store_cell(x, y, c, maxx, maxy, fg, bg);
+}
+
+/*
+    Erase a cell
+*/
+void erase_cell(int x, int y)
+{
+    write_cell(x, y, ' ');
+}
 
 ///////////////////
 // MAIN FUNCTION //
@@ -212,20 +460,12 @@ int main()
             // Draw the brush character
             case ' ':
             case 'd':
-                getyx(draw_win, y, x);
-                wmove(draw_win, y, x);
-                wattron(draw_win, COLOR_PAIR(count));
-                wprintw(draw_win, "%s", brush);
-                wattroff(draw_win, COLOR_PAIR(count));
-                wmove(draw_win, y, x+1);
+                draw();
                 break;
 
             // Erase the brush character
             case 'e':
-                getyx(draw_win, y, x);
-                wmove(draw_win, y, x);
-                wprintw(draw_win, "%s", " ");
-                wmove(draw_win, y, x+1);
+                eraser();
                 break;
 
             // Set new brush character
@@ -260,104 +500,15 @@ int main()
 
             // Save
             case 's':
-                werase(status_win);
-                echo();
-                wprintw(status_win, "Enter Name of Project: ");
-
-                // For input (stdin & file)
-                char *buf = NULL;
-                // Stores Filename of save file
-                char *filename = NULL;
-                // Stores Filename of colors file
-                char *colorsfile = NULL;
-                // Stores amount to allocate
-                int allocSize;
-
-                // Read filename and appropriately set `filename` and `colorsfile`
-                buf = malloc(250);
-                wgetnstr(status_win, buf, 250);
-                allocSize = snprintf(NULL,0,"%s.save",buf);
-                filename = malloc(allocSize+1);
-                snprintf(filename,allocSize+1,"%s.save",buf);
-                colorsfile = malloc(allocSize+1);
-                snprintf(colorsfile,allocSize+1,"%s.cols",buf);
-
-                // Save screen output in ``filename
-                scr_dump(filename);
-
-                // Write all colors in `colorsfile`
-                FILE *f = fopen(colorsfile,"a+");
-                for(int i=1; i<=count; i++)
-                {
-                    short int *a, *b;
-                    short int x, y;
-                    a = &x;
-                    b = &y;
-                    pair_content(i, a, b);
-                    fprintf(f,"%d %hd %hd\n", i, x, y);
-                }
-
-                // Close file and free memory
-                fclose(f);
-                free(filename);
-                free(colorsfile);
-                free(buf);
-                noecho();
+                save();
                 break;
 
             // Load
             case 'o':
-                werase(status_win);
-                echo();
-                wprintw(status_win, "Enter Name of Project: ");
-
-                // Take filename input and appropriately set `filename` and `colorsfile`
-                buf = malloc(250);
-                wgetnstr(status_win, buf, 250);
-                allocSize = snprintf(NULL,0,"%s.save",buf);
-                filename = malloc(allocSize+1);
-                snprintf(filename,allocSize+1,"%s.save",buf);
-                colorsfile = malloc(allocSize+1);
-                snprintf(colorsfile,allocSize+1,"%s.cols",buf);
-
-                // If colorsfile doesn't exists, free memory and break
-                f = fopen(colorsfile,"r");
-                if(f == NULL)
-                {
-                    noecho();
-                    free(filename);
-                    free(colorsfile);
-                    free(buf);
-                    break;
-                }
-
-                // Remove existing color pairs
-                reset_color_pairs();
-
-                // Load color pairs from `colorsfile`
-                int i=1;
-                while(fgets(buf, 250, (FILE*) f))
-                {
-                    int n, f, b;
-                    sscanf(buf,"%d %d %d", &n, &f, &b);
-                    init_pair(n, f, b);
-                    count = i++;
-                }
-
-                // Restore screen layout
-                scr_restore(filename);
-                doupdate();
-
-                // CLose file and free memory
-                fclose(f);
-                noecho();
-                free(filename);
-                free(colorsfile);
-                free(buf);
+                load();
                 break;
         }
     } while(a != 'q');
-    endwin();
-    free(brush);
+    cleanup();
     return 0;
 }

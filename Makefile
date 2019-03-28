@@ -1,5 +1,4 @@
-CC = gcc
-CFLAGS = -I. -Wall
+CFLAGS = -I. -Wall -g
 
 OS = $(shell uname -s)
 
@@ -15,19 +14,25 @@ LIBS += -lncursesw
 endif
 
 SRCS = pxlart.c
-OBJS = $(SRCS: .c = .o)
+OBJS = $(SRCS:.c=.o)
 PROG = pxlart
 DEST = /usr/local/bin
 
-all: $(OBJS)
+all: pxlart mkppm
+
+pxlart: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(PROG) $(LIBS)
+
+mkppm: mkppm.o
+	$(CC) $(CFLAGS) $< -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm *.o
-	rm *~
+	$(RM) $(OBJS)
+	$(RM) mkpm
+	$(RM) pxlart
 
 install:
 	cp -v $(PROG) $(DEST)
