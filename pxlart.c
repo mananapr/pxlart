@@ -79,7 +79,7 @@ WINDOW *create_newwin(int height, int width, int starty, int startx)
 void init_windows(void)
 {
     getmaxyx(stdscr, maxy, maxx);
-    draw_win = create_newwin(maxy-2, maxx, 0, 0);
+    draw_win = create_newwin(maxy-1, maxx, 0, 0);
     status_win = create_newwin(1, maxx, maxy-1, 0);
     keypad(draw_win, TRUE);
 }
@@ -140,7 +140,9 @@ void setBrush(char *newBrush)
 void goUp(void)
 {
     getyx(draw_win, y, x);
-    wmove(draw_win, y-1, x);
+    y -= 1;
+    if(y < 0) y = 0;
+    wmove(draw_win, y, x);
 }
 
 
@@ -150,7 +152,9 @@ void goUp(void)
 void goDown(void)
 {
     getyx(draw_win, y, x);
-    wmove(draw_win, y+1, x);
+    y += 1;
+    if(y >= (maxy - 1)) y = maxy - 2;
+    wmove(draw_win, y, x);
 }
 
 
@@ -160,7 +164,9 @@ void goDown(void)
 void goLeft(void)
 {
     getyx(draw_win, y, x);
-    wmove(draw_win, y, x-1);
+    x -= 1;
+    if(x < 0) x = 0;
+    wmove(draw_win, y, x);
 }
 
 
@@ -170,7 +176,9 @@ void goLeft(void)
 void goRight(void)
 {
     getyx(draw_win, y, x);
-    wmove(draw_win, y, x+1);
+    x += 1;
+    if(x >= maxx) x = maxx - 1;
+    wmove(draw_win, y, x);
 }
 
 
