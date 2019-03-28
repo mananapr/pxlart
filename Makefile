@@ -14,7 +14,7 @@ LIBS += -lncursesw
 endif
 
 SRCS = pxlart.c
-OBJS = $(SRCS: .c = .o)
+OBJS = $(SRCS:.c=.o)
 PROG = pxlart
 DEST = /usr/local/bin
 
