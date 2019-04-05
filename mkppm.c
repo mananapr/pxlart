@@ -8,6 +8,7 @@
 #define GLYPHROW 16
 #define BITMAP_WIDTH 128 /* FONT_WIDTH * GLYPH_ROW */
 #define BITMAP_SKIP 2048 /* BITMAP_WIDTH * FONT_HEIGHT */
+#define BITMAP_NCHARS 48
 
 static void draw_glyph(unsigned char *data,
                        int cx, int cy,
@@ -21,9 +22,16 @@ static void draw_glyph(unsigned char *data,
     unsigned int letter_offset;
 
     letter_offset = c - 32;
+
+    if(letter_offset >= BITMAP_NCHARS) {
+        fprintf(stderr, "Warning: Character out of range\n");
+        return;
+    }
+
     letter_offset =
         (letter_offset % GLYPHROW)*FONT_WIDTH +
         BITMAP_SKIP*(letter_offset/GLYPHROW);
+
 
     for(y = 0; y < FONT_HEIGHT; y++) {
         for(x = 0; x < FONT_WIDTH; x++) {
