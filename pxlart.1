@@ -1,0 +1,41 @@
+.\" Manpage for pxlart.
+.\" Contact mananapr@gmail.com to correct errors or typos.
+.
+.TH PXLART "1" "April 2019" "pxlart" "User Manual"
+.SH NAME
+pxlart
+.SH SYNOPSIS
+.B pxlart
+.SH DESCRIPTION
+A ncurses pixel art editor
+.SH Keybindings
+.
+.nf
+h: move left
+l: move right
+j: move down
+k: move up
+
+d: draw (alternatively you can use space)
+e: erase
+b: change brush
+c: set FG color
+B: set BG color
+
+s: save
+o: load
+q: quit
+.
+.fi
+.
+.SH Image Export
+Keybindings and colors can be customized in
+Saved projects can be exported to image formats using the mkppm utility included with pxlart.
+
+A saved project called "foo" will generate a file called "foo.data", which can be passed into the mkppm utility to create "foo.ppm".
+
+.B mkppm foo.data foo.ppm
+
+The PPM file can then be converted to a PNG file using imagemagick:
+
+.B convert foo.ppm foo.png

@@ -35,7 +35,13 @@ clean:
 	$(RM) pxlart
 
 install:
-	cp -v $(PROG) $(DEST)
+	install -Dm 755 $(PROG) $(DEST)/$(PROG)
+	install -Dm 755 mkppm $(DEST)/mkppm
+	install -Dm 644 LICENSE /usr/share/licenses/$(PROG)/LICENSE
+	install -Dm 644 pxlart.1 /usr/local/man/man1/pxlart.1
 
 uninstall:
-	rm -v "$(DEST)/$(PROG)"
+	rm -v $(DEST)/$(PROG)
+	rm -v $(DEST)/mkppm
+	rm -v /usr/share/licenses/$(PROG)/LICENSE
+	rm -v /usr/local/man/man1/pxlart.1

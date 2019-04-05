@@ -56,7 +56,7 @@ included with pxlart.
 A saved project called "foo" will generate a file called "foo.data", which
 can be passed into the mkppm utility to create "foo.ppm".
 
-`./mkppm foo.data foo.ppm`
+`mkppm foo.data foo.ppm`
 
 The PPM file can then be converted to a PNG file using imagemagick:
 
@@ -66,4 +66,4 @@ The PPM file can then be converted to a PNG file using imagemagick:
 - [x] Add ability to save and load
 - [x] Add ability to export to image formats
 - [x] Make PKGBUILD for AUR
-- [ ] Write a manpage
+- [x] Write a manpage
